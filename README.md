@@ -1,6 +1,6 @@
 # Thurnreiter.UriBuilder
 This is a wrapper for TUri from namespace System.Net.URLClient.
-The Constructor of Implementation has a parameter the initializes a TURI from a string.
+The Constructor of Implementation has a parameter that initializes the TURI from a string.
 The AddParameter method can be controlled by attributes. It is also possible to pass the "Value" by delegate (TFunc<string>).
 #### The validator class:
 ```delphi
