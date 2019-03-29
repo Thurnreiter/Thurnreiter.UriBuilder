@@ -259,7 +259,6 @@ procedure TUriBuilder.Validate;
 var
   RCtx: TRttiContext;
   RType: TRttiType;
-  RMethod: TRttiMethod;
   RAttribute: TCustomAttribute;
   UriValidatorClass: TUriValidatorClass;
   UriValidator: TUriValidator;
@@ -271,30 +270,27 @@ begin
     if (not Assigned(RType)) then
       Exit;
 
-    for RMethod in RType.GetDeclaredMethods do
+    for RAttribute in RType.GetAttributes do
     begin
-      for RAttribute in RMethod.GetAttributes do
+      if RAttribute is UriName then
       begin
-        if RAttribute is UriName then
-        begin
-          Index := FindNameValuePair(UriName(RAttribute).Name);
-          if (Index = -1) then
-            Continue;
+        Index := FindNameValuePair(UriName(RAttribute).Name);
+        if (Index = -1) then
+          Continue;
 
-          UriValidatorClass := UriName(RAttribute).Validator;
-          if Assigned(UriValidatorClass) then
-          begin
-            UriValidator := UriValidatorClass.Create(FUriParameters[Index].Value);
-            try
-              FUriParameters[Index].Value := UriValidator.GetValue;
-            finally
-              UriValidator.Free;
-            end;
-          end
-          else
-          if ((not FUriParameters[Index].Name.IsEmpty) and (UriName(RAttribute).FieldLength > 0)) then
-            FUriParameters[Index].Value := FUriParameters[Index].Value.Substring(0, UriName(RAttribute).FieldLength);
-        end;
+        UriValidatorClass := UriName(RAttribute).Validator;
+        if Assigned(UriValidatorClass) then
+        begin
+          UriValidator := UriValidatorClass.Create(FUriParameters[Index].Value);
+          try
+            FUriParameters[Index].Value := UriValidator.GetValue;
+          finally
+            UriValidator.Free;
+          end;
+        end
+        else
+        if ((not FUriParameters[Index].Name.IsEmpty) and (UriName(RAttribute).FieldLength > 0)) then
+          FUriParameters[Index].Value := FUriParameters[Index].Value.Substring(0, UriName(RAttribute).FieldLength);
       end;
     end;
   finally

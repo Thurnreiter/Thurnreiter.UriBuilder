@@ -17,7 +17,7 @@ type
   {$ENDREGION}
 
   /// <summary>
-  ///   Demo how tzo override the TUriValidator class. Here we reduce the value.
+  ///   Demo how to override the TUriValidator class. Here we reduce the value.
   /// </summary>
   TNathanUriValidator = class(TUriValidator)
   public
@@ -25,18 +25,16 @@ type
   end;
 
   /// <summary>
-  ///   Demo class from TUriBuilder, with attributes to validate the TNameValuePair.
+  ///   Is actually only an alias for "TUriBuilder", extended by attributes.
   /// </summary>
-  TNathanUriBilder = class(TUriBuilder)
-  public
-    [UriName('AName1', 1)]
-    [UriName('AName2', 2)]
-    [UriName('AName3', 3)]
-    [UriName('Nathan', 2)]
-    [UriName('hello', TUriValidator)]
-    [UriName('helloshort', TNathanUriValidator)]
-    function AddParameter(const AName, AValue: string): IUriBuilder; override;
-  end;
+  [UriName('Name4711', 4711)]
+  [UriName('Name1', 1)]
+  [UriName('Name2', 2)]
+  [UriName('Name3', 3)]
+  [UriName('Nathan', 2)]
+  [UriName('hello', TUriValidator)]
+  [UriName('helloshort', TNathanUriValidator)]
+  TNathanUriBilder = class(TUriBuilder);
 
 {$M-}
 
@@ -49,15 +47,6 @@ implementation
 function TNathanUriValidator.GetValue: string;
 begin
   Result := inherited.Substring(0, 2);
-end;
-
-{ **************************************************************************** }
-
-{ TNathanUriBilder }
-
-function TNathanUriBilder.AddParameter(const AName, AValue: string): IUriBuilder;
-begin
-  Result := inherited;
 end;
 
 end.
