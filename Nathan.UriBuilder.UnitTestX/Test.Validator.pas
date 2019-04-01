@@ -22,11 +22,17 @@ type
 
     [Test]
     procedure Test_HasCorrectlyInOutValue;
+
+    [Test]
+    procedure Test_ThrowExceptionByGetValue;
   end;
 
 {$M-}
 
 implementation
+
+uses
+  Derived.UriBuilder.Demo;
 
 procedure TTestUriBuilderValidator.Setup();
 begin
@@ -50,6 +56,18 @@ begin
 
   //  Assert...
   Assert.AreEqual('chanan', Actual);
+end;
+
+procedure TTestUriBuilderValidator.Test_ThrowExceptionByGetValue;
+begin
+  Assert.WillRaiseWithMessage(
+    procedure
+    begin
+      FCut := TNathanUriValidatorEx.Create('chanan');
+      FCut.GetValue;
+    end,
+    EInvalidUriValidatorValue,
+    'Invalid value for the parameter.');
 end;
 
 initialization

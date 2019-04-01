@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils,
   System.Net.URLClient,
-  Nathan.UriBuilder.Attribute;
+  Nathan.UriBuilder.Attribute,
+  Nathan.UriBuilder.Validator;
 
 {$M+}
 
@@ -64,6 +65,9 @@ type
     FUriParameters: TURIParameters;
   strict private
     function FindNameValuePair(const NameOfPair: string): Integer;
+    function GetInnerAttributes(AClass: TClass): TArray<TCustomAttribute>;
+    function CreateValidatorClassAndGetValue(AUriValidatorClass: TUriValidatorClass; const AInput: string): string;
+
     procedure Validate;
   public
     constructor Create(const AUriInitString: string);
@@ -106,8 +110,7 @@ implementation
 
 uses
   System.Rtti,
-  System.TypInfo,
-  Nathan.UriBuilder.Validator;
+  System.TypInfo;
 
 { **************************************************************************** }
 
@@ -255,46 +258,53 @@ begin
   Result := -1;
 end;
 
-procedure TUriBuilder.Validate;
+function TUriBuilder.GetInnerAttributes(AClass: TClass): TArray<TCustomAttribute>;
 var
   RCtx: TRttiContext;
   RType: TRttiType;
+begin
+  RCtx := TRttiContext.Create();
+  RType := RCtx.GetType(Self.ClassType);
+  if (not Assigned(RType)) then
+    Exit;
+
+  Result := RType.GetAttributes;
+end;
+
+function TUriBuilder.CreateValidatorClassAndGetValue(AUriValidatorClass: TUriValidatorClass; const AInput: string): string;
+var
+  UriValidator: TUriValidator;
+begin
+  UriValidator := AUriValidatorClass.Create(AInput);
+  try
+    Result := UriValidator.GetValue;
+  finally
+    UriValidator.Free;
+  end;
+end;
+
+procedure TUriBuilder.Validate;
+var
   RAttribute: TCustomAttribute;
   UriValidatorClass: TUriValidatorClass;
   UriValidator: TUriValidator;
   Index: Integer;
 begin
-  RCtx := TRttiContext.Create();
-  try
-    RType := RCtx.GetType(Self.ClassType);
-    if (not Assigned(RType)) then
-      Exit;
-
-    for RAttribute in RType.GetAttributes do
+  for RAttribute in GetInnerAttributes(Self.ClassType) do
+  begin
+    if RAttribute is UriName then
     begin
-      if RAttribute is UriName then
-      begin
-        Index := FindNameValuePair(UriName(RAttribute).Name);
-        if (Index = -1) then
-          Continue;
+      Index := FindNameValuePair(UriName(RAttribute).Name);
+      if (Index = -1) then
+        Continue;
 
-        UriValidatorClass := UriName(RAttribute).Validator;
-        if Assigned(UriValidatorClass) then
-        begin
-          UriValidator := UriValidatorClass.Create(FUriParameters[Index].Value);
-          try
-            FUriParameters[Index].Value := UriValidator.GetValue;
-          finally
-            UriValidator.Free;
-          end;
-        end
-        else
-        if ((not FUriParameters[Index].Name.IsEmpty) and (UriName(RAttribute).FieldLength > 0)) then
-          FUriParameters[Index].Value := FUriParameters[Index].Value.Substring(0, UriName(RAttribute).FieldLength);
-      end;
+      UriValidatorClass := UriName(RAttribute).Validator;
+      if Assigned(UriValidatorClass) then
+        FUriParameters[Index].Value := CreateValidatorClassAndGetValue(UriValidatorClass, FUriParameters[Index].Value)
+      else
+      if ((not FUriParameters[Index].Name.IsEmpty) and (UriName(RAttribute).FieldLength > 0)) then
+        FUriParameters[Index].Value := FUriParameters[Index].Value.Substring(0, UriName(RAttribute).FieldLength);
     end;
-  finally
-    RCtx.Free;
   end;
 end;
 

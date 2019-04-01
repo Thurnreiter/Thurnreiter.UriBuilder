@@ -2,9 +2,14 @@ unit Nathan.UriBuilder.Validator;
 
 interface
 
+uses
+  System.SysUtils;
+
 {$M+}
 
 type
+  EInvalidUriValidatorValue = class(Exception);
+
   TUriValidator = class
   strict protected
     FValue: string;

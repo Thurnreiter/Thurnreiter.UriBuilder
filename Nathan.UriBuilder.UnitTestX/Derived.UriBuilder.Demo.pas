@@ -25,6 +25,14 @@ type
   end;
 
   /// <summary>
+  ///   Demo how to override the TUriValidator class with and exception.
+  /// </summary>
+  TNathanUriValidatorEx = class(TUriValidator)
+  public
+    function GetValue(): string; override;
+  end;
+
+  /// <summary>
   ///   Is actually only an alias for "TUriBuilder", extended by attributes.
   /// </summary>
   [UriName('Name4711', 4711)]
@@ -35,6 +43,9 @@ type
   [UriName('hello', TUriValidator)]
   [UriName('helloshort', TNathanUriValidator)]
   TNathanUriBilder = class(TUriBuilder);
+
+  [UriName('helloexception', TNathanUriValidatorEx)]
+  TNathanUriBilderEx = class(TUriBuilder);
 
 {$M-}
 
@@ -47,6 +58,15 @@ implementation
 function TNathanUriValidator.GetValue: string;
 begin
   Result := inherited.Substring(0, 2);
+end;
+
+{ **************************************************************************** }
+
+{ TNathanUriValidatorEx }
+
+function TNathanUriValidatorEx.GetValue: string;
+begin
+  raise EInvalidUriValidatorValue.Create('Invalid value for the parameter.');
 end;
 
 end.

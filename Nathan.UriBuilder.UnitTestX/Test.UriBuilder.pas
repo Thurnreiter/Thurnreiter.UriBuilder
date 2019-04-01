@@ -44,6 +44,9 @@ type
 
     [Test]
     procedure Test_AddParameter_WithTFunc;
+
+    [Test]
+    procedure Test_HasAnExceptionOnValidator;
   end;
 
 {$M-}
@@ -52,7 +55,8 @@ implementation
 
 uses
   System.SysUtils,
-  Derived.UriBuilder.Demo;
+  Derived.UriBuilder.Demo,
+  Nathan.UriBuilder.Validator;
 
 procedure TTestUriBuilder.Setup();
 begin
@@ -180,6 +184,20 @@ begin
 
   //  Assert...
   Assert.AreEqual('http://webto.parts.com/loginh.aspx?nathan=ch&pname=thu', Actual);
+end;
+
+procedure TTestUriBuilder.Test_HasAnExceptionOnValidator;
+begin
+ Assert.WillRaiseWithMessage(
+    procedure
+    begin
+      FCut := TNathanUriBilderEx.Create('http://webto.parts.com/loginh.aspx');
+      FCut
+        .AddParameter('helloexception', 'chanan')
+        .ToString;
+    end,
+    EInvalidUriValidatorValue,
+    'Invalid value for the parameter.');
 end;
 
 initialization
