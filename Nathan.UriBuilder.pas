@@ -247,7 +247,7 @@ begin
   //  FUri.DeleteParameter(AName);
   for Idx := Low(FUriParameters) to High(FUriParameters) do
   begin
-    if FUriParameters[Idx].Name.ToLower.Contains(AName) then
+    if FUriParameters[Idx].Name.ToLower.Contains(AName.ToLower) then
     begin
       Finalize(FUriParameters[Idx]);
       System.Move(FUriParameters[Idx + 1], FUriParameters[Idx], (Length(FUriParameters) - Idx - 1) * SizeOf(TURIParameter));

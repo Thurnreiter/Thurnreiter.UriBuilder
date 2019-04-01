@@ -212,7 +212,7 @@ begin
     .Create('http://webto.parts.com/loginh.aspx')
     .AddParameter('nathan', 'chanan')
     .AddParameter('emptyparamname', '')
-    .AddParameter('sameempty', '')
+    .AddParameter('SameEmpty', '')
     .AddParameter('anyafter', 'next');
 
   //  Act...
