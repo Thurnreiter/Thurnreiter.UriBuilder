@@ -24,6 +24,7 @@ The AddParameter method can be controlled by attributes. It is also possible to 
   [UriName('Nathan', 2)]
   [UriName('hello', TUriValidator)]
   [UriName('helloshort', TNathanUriValidator)]
+  [IgnoreEmptyValues]
   TNathanUriBilder = class(TUriBuilder);
 ```
 #### And how to use them:
