@@ -67,8 +67,9 @@ type
     function FindNameValuePair(const NameOfPair: string): Integer;
     function GetInnerAttributes(AClass: TClass): TArray<TCustomAttribute>;
     function CreateValidatorClassAndGetValue(AUriValidatorClass: TUriValidatorClass; const AInput: string): string;
+    procedure DeleteAllEmptyValues;
 
-    procedure Validate;
+    function Validate: Boolean;
   public
     constructor Create(const AUriInitString: string);
 
@@ -215,8 +216,6 @@ function TUriBuilder.AddParameter(const AName, AValue: string): IUriBuilder;
 begin
   SetLength(FUriParameters, Length(FUriParameters) + 1);
   FUriParameters[High(FUriParameters)].Create(AName, AValue);
-
-  //  FUri.AddParameter(AName, AValue);
   Result := Self;
 end;
 
@@ -225,6 +224,20 @@ begin
   SetLength(FUriParameters, Length(FUriParameters) + 1);
   FUriParameters[High(FUriParameters)].Create(AName, AFuncValue);
   Result := Self;
+end;
+
+procedure TUriBuilder.DeleteAllEmptyValues;
+var
+  Idx: Integer;
+begin
+  Idx := Low(FUriParameters);
+  while Idx <= High(FUriParameters) do
+  begin
+    if FUriParameters[Idx].Value.IsEmpty then
+      DeleteParameter(FUriParameters[Idx].Name)
+    else
+      Inc(Idx);
+  end;
 end;
 
 function TUriBuilder.DeleteParameter(const AName: string): IUriBuilder;
@@ -283,15 +296,18 @@ begin
   end;
 end;
 
-procedure TUriBuilder.Validate;
+function TUriBuilder.Validate: Boolean;
 var
   RAttribute: TCustomAttribute;
   UriValidatorClass: TUriValidatorClass;
-  UriValidator: TUriValidator;
   Index: Integer;
 begin
+  Result := False;
   for RAttribute in GetInnerAttributes(Self.ClassType) do
   begin
+    if (not Result) then
+      Result := (RAttribute is IgnoreEmptyValues);
+
     if RAttribute is UriName then
     begin
       Index := FindNameValuePair(UriName(RAttribute).Name);
@@ -312,7 +328,9 @@ function TUriBuilder.ToString: string;
 var
   Idx: Integer;
 begin
-  Validate;
+  if Validate then
+    DeleteAllEmptyValues;
+
   for Idx := Low(FUriParameters) to High(FUriParameters) do
     FUri.AddParameter(FUriParameters[Idx]);
 

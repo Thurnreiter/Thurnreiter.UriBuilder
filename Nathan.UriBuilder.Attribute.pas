@@ -23,6 +23,9 @@ type
     property Validator: TUriValidatorClass read FValidator;
   end;
 
+  IgnoreEmptyValues = class(TCustomAttribute)
+  end;
+
 {$M-}
 
 implementation

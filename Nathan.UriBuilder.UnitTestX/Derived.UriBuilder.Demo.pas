@@ -44,7 +44,9 @@ type
   [UriName('helloshort', TNathanUriValidator)]
   TNathanUriBilder = class(TUriBuilder);
 
+  [IgnoreEmptyValues]
   [UriName('helloexception', TNathanUriValidatorEx)]
+  [UriName('Nathan', 2)]
   TNathanUriBilderEx = class(TUriBuilder);
 
 {$M-}

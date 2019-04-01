@@ -47,6 +47,9 @@ type
 
     [Test]
     procedure Test_HasAnExceptionOnValidator;
+
+    [Test]
+    procedure Test_AddParameter_WithEmptyValue;
   end;
 
 {$M-}
@@ -198,6 +201,25 @@ begin
     end,
     EInvalidUriValidatorValue,
     'Invalid value for the parameter.');
+end;
+
+procedure TTestUriBuilder.Test_AddParameter_WithEmptyValue;
+var
+  Actual: string;
+begin
+  //  Arrange...
+  FCut := TNathanUriBilderEx
+    .Create('http://webto.parts.com/loginh.aspx')
+    .AddParameter('nathan', 'chanan')
+    .AddParameter('emptyparamname', '')
+    .AddParameter('sameempty', '')
+    .AddParameter('anyafter', 'next');
+
+  //  Act...
+  Actual := FCut.ToString;
+
+  //  Assert...
+  Assert.AreEqual('http://webto.parts.com/loginh.aspx?nathan=ch&anyafter=next', Actual);
 end;
 
 initialization
