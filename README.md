@@ -12,21 +12,19 @@ The AddParameter method can be controlled by attributes. It is also possible to 
     function GetValue(): string; override;
   end;
 ```
-#### The derived class from TUriBuilder:
+#### An alias class for TUriBuilder with attributes to validate the parameters:
 ```delphi
   /// <summary>
-  ///   Demo class from TUriBuilder, with attributes to validate the TNameValuePair.
+  ///   Is actually only an alias for "TUriBuilder", extended by attributes.
   /// </summary>
-  TNathanUriBilder = class(TUriBuilder)
-  public
-    [UriName('AName1', 1)]
-    [UriName('AName2', 2)]
-    [UriName('AName3', 3)]
-    [UriName('Nathan', 2)]
-    [UriName('hello', TUriValidator)]
-    [UriName('helloshort', TNathanUriValidator)]
-    function AddParameter(const AName, AValue: string): IUriBuilder; override;
-  end;
+  [UriName('Name4711', 4711)]
+  [UriName('Name1', 1)]
+  [UriName('Name2', 2)]
+  [UriName('Name3', 3)]
+  [UriName('Nathan', 2)]
+  [UriName('hello', TUriValidator)]
+  [UriName('helloshort', TNathanUriValidator)]
+  TNathanUriBilder = class(TUriBuilder);
 ```
 #### And how to use them:
 ```delphi
