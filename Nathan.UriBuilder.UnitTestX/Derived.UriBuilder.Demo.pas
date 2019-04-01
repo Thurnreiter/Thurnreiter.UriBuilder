@@ -49,6 +49,15 @@ type
   [UriName('Nathan', 2)]
   TNathanUriBilderEx = class(TUriBuilder);
 
+  [IgnoreEmptyValues('chanan')]
+  [UriName('Nathan', 2)]
+  TNathanUriBilderIgnore = class(TUriBuilder);
+
+  [IgnoreEmptyValues]
+  [IgnoreEmptyValues('chanan')]
+  [UriName('Nathan', 2)]
+  TNathanUriBilderIgnore2 = class(TUriBuilder);
+
 {$M-}
 
 implementation

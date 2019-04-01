@@ -13,6 +13,7 @@ type
   TTestUriBuilder = class
   strict private
     FCut: IUriBuilder;
+  private const StartUrl = 'http://webto.parts.com/loginh.aspx';
   public
     [Setup]
     procedure Setup();
@@ -50,6 +51,12 @@ type
 
     [Test]
     procedure Test_AddParameter_WithEmptyValue;
+
+    [Test]
+    procedure Test_AddParameter_WithIgnoreOneParameter;
+
+    [Test]
+    procedure Test_AddParameter_WithIgnoreOneParameterAndAll;
   end;
 
 {$M-}
@@ -105,7 +112,7 @@ var
   Actual: string;
 begin
   //  Arrange...
-  FCut := TNathanUriBilder.Create('http://webto.parts.com/loginh.aspx');
+  FCut := TNathanUriBilder.Create(StartUrl);
 
   //  Act...
   Actual := FCut
@@ -121,7 +128,7 @@ var
   Actual: string;
 begin
   //  Arrange...
-  FCut := TNathanUriBilder.Create('http://webto.parts.com/loginh.aspx');
+  FCut := TNathanUriBilder.Create(StartUrl);
   FCut.AddParameter('nathan', 'chanan');
   FCut.AddParameter('paramname', 'thurnreiter');
 
@@ -138,7 +145,7 @@ var
   Actual: string;
 begin
   //  Arrange...
-  FCut := TNathanUriBilder.Create('http://webto.parts.com/loginh.aspx');
+  FCut := TNathanUriBilder.Create(StartUrl);
   FCut.AddParameter('helloshort', 'chanan');
 
   //  Act...
@@ -153,7 +160,7 @@ var
   Actual: string;
 begin
   //  Arrange...
-  FCut := TNathanUriBilder.Create('http://webto.parts.com/loginh.aspx');
+  FCut := TNathanUriBilder.Create(StartUrl);
 
   //  Act...
   Actual := FCut
@@ -173,7 +180,7 @@ var
   Actual: string;
 begin
   //  Arrange...
-  FCut := TNathanUriBilder.Create('http://webto.parts.com/loginh.aspx');
+  FCut := TNathanUriBilder.Create(StartUrl);
 
   //  Act...
   Actual := FCut
@@ -194,7 +201,7 @@ begin
  Assert.WillRaiseWithMessage(
     procedure
     begin
-      FCut := TNathanUriBilderEx.Create('http://webto.parts.com/loginh.aspx');
+      FCut := TNathanUriBilderEx.Create(StartUrl);
       FCut
         .AddParameter('helloexception', 'chanan')
         .ToString;
@@ -209,7 +216,7 @@ var
 begin
   //  Arrange...
   FCut := TNathanUriBilderEx
-    .Create('http://webto.parts.com/loginh.aspx')
+    .Create(StartUrl)
     .AddParameter('nathan', 'chanan')
     .AddParameter('emptyparamname', '')
     .AddParameter('SameEmpty', '')
@@ -220,6 +227,42 @@ begin
 
   //  Assert...
   Assert.AreEqual('http://webto.parts.com/loginh.aspx?nathan=ch&anyafter=next', Actual);
+end;
+
+procedure TTestUriBuilder.Test_AddParameter_WithIgnoreOneParameter;
+var
+  Actual: string;
+begin
+  //  Arrange...
+  FCut := TNathanUriBilderIgnore
+    .Create(StartUrl)
+    .AddParameter('chanan', '')
+    .AddParameter('emptyparam', '')
+    .AddParameter('key', 'value');
+
+  //  Act...
+  Actual := FCut.ToString;
+
+  //  Assert...
+  Assert.AreEqual('http://webto.parts.com/loginh.aspx?emptyparam=&key=value', Actual);
+end;
+
+procedure TTestUriBuilder.Test_AddParameter_WithIgnoreOneParameterAndAll;
+var
+  Actual: string;
+begin
+  //  Arrange...
+  FCut := TNathanUriBilderIgnore2
+    .Create(StartUrl)
+    .AddParameter('chanan', '')
+    .AddParameter('emptyparam', '')
+    .AddParameter('key', 'value');
+
+  //  Act...
+  Actual := FCut.ToString;
+
+  //  Assert...
+  Assert.AreEqual('http://webto.parts.com/loginh.aspx?key=value', Actual);
 end;
 
 initialization

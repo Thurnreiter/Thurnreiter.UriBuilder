@@ -18,7 +18,7 @@ type
   ///   https://nathan:thurnreiter@www.example.com:8080/index.html?p1=A&p2=B#ressource
   ///   \___/   \____/ \_________/ \_____________/ \__/\_________/ \_______/ \_______/
   ///     |       |         |           |            |      |          |         |
-  ///   Schema   User    Kennwort      Host        Port    Pfad      Query    Fragment
+  ///   Schema   User    Password      Host        Port    Path      Query    Fragment
   /// </summary>
   IUriBuilder = interface
     ['{83DD3E74-13EF-4A9F-862E-E1AC660B6DDF}']
@@ -68,8 +68,10 @@ type
     function GetInnerAttributes(AClass: TClass): TArray<TCustomAttribute>;
     function CreateValidatorClassAndGetValue(AUriValidatorClass: TUriValidatorClass; const AInput: string): string;
     procedure DeleteAllEmptyValues;
+    procedure DeleteEmptyValues(const AList: string);
 
-    function Validate: Boolean;
+    function Validate: string;
+  private const CanDeleteAllEmptyValues = '@@all@@';
   public
     constructor Create(const AUriInitString: string);
 
@@ -240,11 +242,25 @@ begin
   end;
 end;
 
+procedure TUriBuilder.DeleteEmptyValues;
+var
+  Idx: Integer;
+begin
+  Idx := Low(FUriParameters);
+  while Idx <= High(FUriParameters) do
+  begin
+    if (FUriParameters[Idx].Value.IsEmpty
+    and (AList.Contains(',' + FUriParameters[Idx].Name))) then
+      DeleteParameter(FUriParameters[Idx].Name)
+    else
+      Inc(Idx);
+  end;
+end;
+
 function TUriBuilder.DeleteParameter(const AName: string): IUriBuilder;
 var
   Idx: Integer;
 begin
-  //  FUri.DeleteParameter(AName);
   for Idx := Low(FUriParameters) to High(FUriParameters) do
   begin
     if FUriParameters[Idx].Name.ToLower.Contains(AName.ToLower) then
@@ -296,19 +312,26 @@ begin
   end;
 end;
 
-function TUriBuilder.Validate: Boolean;
+function TUriBuilder.Validate: string;
 var
   RAttribute: TCustomAttribute;
   UriValidatorClass: TUriValidatorClass;
   Index: Integer;
 begin
-  Result := False;
+  Result := '';
   for RAttribute in GetInnerAttributes(Self.ClassType) do
   begin
-    if (not Result) then
-      Result := (RAttribute is IgnoreEmptyValues);
+    if (RAttribute is IgnoreEmptyValues) then
+    begin
+      if IgnoreEmptyValues(RAttribute).Name.IsEmpty then
+        Result := CanDeleteAllEmptyValues + Result
+      else
+        Result := string.Format('%s,%s', [Result, IgnoreEmptyValues(RAttribute).Name]);
 
-    if RAttribute is UriName then
+      Continue;
+    end
+    else
+    if (RAttribute is UriName) then
     begin
       Index := FindNameValuePair(UriName(RAttribute).Name);
       if (Index = -1) then
@@ -327,9 +350,14 @@ end;
 function TUriBuilder.ToString: string;
 var
   Idx: Integer;
+  Return: string;
 begin
-  if Validate then
-    DeleteAllEmptyValues;
+  Return := Validate;
+  if Return.StartsWith(CanDeleteAllEmptyValues) then
+    DeleteAllEmptyValues
+  else
+  if (not Return.IsEmpty) then
+    DeleteEmptyValues(Return);
 
   for Idx := Low(FUriParameters) to High(FUriParameters) do
     FUri.AddParameter(FUriParameters[Idx]);

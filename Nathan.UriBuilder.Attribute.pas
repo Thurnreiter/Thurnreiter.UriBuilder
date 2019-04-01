@@ -24,6 +24,11 @@ type
   end;
 
   IgnoreEmptyValues = class(TCustomAttribute)
+  strict private
+    FName: string;
+  public
+    constructor Create(const AName: string = '');
+    property Name: string read FName;
   end;
 
 {$M-}
@@ -47,6 +52,14 @@ constructor UriName.Create(const AName: string; Validator: TUriValidatorClass);
 begin
   Create(AName, 0);
   FValidator := Validator;
+end;
+
+{ IgnoreEmptyValues }
+
+constructor IgnoreEmptyValues.Create(const AName: string);
+begin
+  inherited Create;
+  FName := AName;
 end;
 
 end.
